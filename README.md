@@ -1,0 +1,2 @@
+# Dockerized-Data-Pipeline-with-Airflow-DagsterObjective
+This end-to-end project demonstrates the complete design and deployment of a fully automated, containerized data pipeline built from scratch. The goal of the pipeline is to fetch real-time stock market data from the Alpha Vantage API, process it, and store it securely in a PostgreSQL database, orchestrated and scheduled using Airflow/Dagster.
