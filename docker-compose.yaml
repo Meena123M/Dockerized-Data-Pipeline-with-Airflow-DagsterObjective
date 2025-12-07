@@ -1,0 +1,52 @@
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:16
+    ports:
+      - "5000:5432"
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./airflow_inits.sql:/docker-entrypoint-initdb.d/airflow_inits.sql
+    networks:
+      - my_network
+      
+  af:
+    container_name: airflow_container
+    image: apache/airflow:2.8.1
+    ports:
+      - "8000:8080"
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@db:5432/airflow_db
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./api_requests:/opt/airflow/api_requests
+      
+    depends_on:
+      - db
+    networks:
+      - my_network 
+    command: bash -c "airflow db upgrade && airflow webserver"
+
+  dbt:
+    container_name: dbt_container
+    image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
+    volumes:
+      - ./dbt:/usr/app
+    working_dir: /usr/app
+    networks:
+      - my_network
+    command: init my_dbt_project  
+    
+
+
+
+networks:
+   my_network:
+     driver: bridge         
+    
